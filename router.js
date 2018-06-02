@@ -1,12 +1,13 @@
 var Profile = require("./profile.js");
+var renderer = require("./renderer.js")
 
 //2. Handle Http Get/ and Post/ route i.e. Home
 function homeRoute(req, res){
 	if(req.url === "/"){
 		res.writeHead(200, {'Content-Type':'text/plain'});
-		res.write('Header\n'); 
-		res.write('Body\n'); 
-		res.end('Footer\n'); 
+		renderer.view('header',{},res); 
+		renderer.view('search',{},res);  
+		renderer.view('footer',{},res); 
 	}
 	
 	
@@ -18,7 +19,7 @@ function userRoute(req, res){
 	
 	if (userName.length > 0 ){
 		res.writeHead(200, {'Content-Type':'text/plain'});
-		res.write('Header\n'); 
+		renderer.view('header',{},res); 
 		
 		let studentProfile = new Profile(userName);
 		studentProfile.on("end", function(profileJSON){
@@ -28,15 +29,16 @@ function userRoute(req, res){
 				badges: profileJSON.badges, 
 				JavaScript: profileJSON.points.javaScript
 			};
-			res.write(values.username + ' has ' + values.badges + 'badges and' + values.javaScript + 'JavaScript points\n'); 
-			res.end('Footer\n'); 
+			renderer.view('profile',values,res); 
+			renderer.view('footer',{},res); 
 		});
 		studentProfile.on("error", function(error){
 			console.log(error.message);
-			
+			renderer.view('error',{errorMessage: error.message},res); 
+			renderer.view('search',{},res); 
+			renderer.view('footer',{},res); 
 		});
 		
-		res.end('Footer\n'); 
 	}
 }
 
